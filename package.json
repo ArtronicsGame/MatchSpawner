@@ -1,0 +1,23 @@
+{
+    "name": "heroes_match_spawner",
+    "version": "0.1.0",
+    "description": "One of coolest Iranian multiplayer game server side consist UDP and TCP Communication",
+    "main": "app.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "start": "node app.js"
+    },
+    "keywords": [
+        "#OnlineGame",
+        "#Multiplayer",
+        "#Strategy",
+        "#Game",
+        "#Artronic"
+    ],
+    "author": "Mobin Vahdati",
+    "license": "ISC",
+    "dependencies": {
+        "express": "^4.16.4",
+        "ioredis": "^4.9.0"
+    }
+}
