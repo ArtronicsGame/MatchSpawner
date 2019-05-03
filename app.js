@@ -1,5 +1,5 @@
-
 const execFile = require('child_process').execFile;
+const axios = require('axios');
 const Redis = require('ioredis');
 const readline = require('readline');
 const express = require('express');
@@ -7,10 +7,14 @@ var app = express(),
     bodyParser = require('body-parser');
 var http = require('http').Server(app);
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.urlencoded({
+    extended: true
+}));
 
 const RedisDB = new Redis(6379, '5.253.27.99');
 const HTTP_PORT = 1243;
+const SERVER_IP = '5.253.27.99';
+const MAIN_SERVER = '5.253.27.99';
 
 app.post('/createMatch', function (req, res) {
     res.setHeader('Content-Type', 'application/json');
@@ -25,16 +29,33 @@ app.post('/createMatch', function (req, res) {
         input: match.stderr
     });
 
-    rl.on('line', (input) => {
+    rl.on('line', function (input) {
         console.log("Input Message: " + input);
         if (!isNaN(input)) {
+            var matchPort = parseInt(input);
             res.status(200).send(JSON.stringify({
-                port: parseInt(input)
+                port: matchPort
             }));
+            axios.post('http://5.253.27.99:254/onSpawn', {
+                    serverIP: SERVER_IP,
+                    serverPort: matchPort,
+                    userIds: users
+                })
+                .then(function (response) {
+                    var id = response.data.id;
+                    this.match.stdin.write(id + "\n");
+                }.bind({
+                    match: this.match
+                }))
+                .catch(function (error) {
+                    console.log(error);
+                });
         } else {
             console.log("Error: " + input);
         }
-    });
+    }.bind({
+        match: match
+    }));
 
     readline.createInterface({
         input: match.stdout
@@ -59,7 +80,9 @@ app.post('/createMatch', function (req, res) {
 
         this.match.stdin.write("Default\n"); //Map
         console.log("Match Ready To Pair");
-    }.bind({ match: match }));
+    }.bind({
+        match: match
+    }));
 
 });
 
